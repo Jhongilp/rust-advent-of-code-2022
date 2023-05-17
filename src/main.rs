@@ -1,44 +1,47 @@
+use std::collections::HashMap;
 use std::fs;
+
+// AX -> rock-rock -> draw
+// AY -> rock-paper -> win
+// AZ -> rock-scissors -> loss
+// BX -> paper-rock -> loss
+// BY -> paper-paper -> draw
+// BZ -> paper-scissors -> win
+// CX -> scissors-rock -> win
+// CY -> scissors-paper -> loss
+// CZ -> scissors-scissors -> draw
 
 fn main() {
     println!("Hello, world!");
     let input = fs::read_to_string("input.txt").expect("Filed should be read");
-    println!("Input data \n{}", input);
-    let mut total_calories_by_elf: Vec<i32> = Vec::new();
-    let mut max = 0;
-    let mut sum = 0;
-    input.lines().for_each(|item| {
-        let calories = item.parse::<i32>().unwrap_or_else(|_| {
-            // println!("No a number, then it must start a new group of calories");
-            if sum > max {
-                max = sum;
-            }
-            total_calories_by_elf.push(sum);
-            sum = 0;
-            0
-        });
-        sum += calories;
-        // println!("Calories {}", calories);
-        // println!("Calories sum  {}", sum);
-    });
+    // println!("Input data \n{}", input);
+    let game_scores = HashMap::from([
+        ("AX", 3),
+        ("AY", 6),
+        ("AZ", 0),
+        ("BX", 0),
+        ("BY", 3),
+        ("BZ", 6),
+        ("CX", 6),
+        ("CY", 0),
+        ("CZ", 3),
+    ]);
 
-    total_calories_by_elf.sort();
-    let mut total_largest_three = 0;
-    let last_three =
-        total_calories_by_elf.get(total_calories_by_elf.len() - 3..total_calories_by_elf.len());
-
-    for i in last_three {
-        for j in 0..3 {
-            if let Some(x) = Some(i.get(j)).unwrap() {
-                println!("From last three Some: {:?}", x);
-                total_largest_three += x;
-            }
-        }
-    }
-    println!("The largest calories group is {}", max);
-
-    println!(
-        "The three largest calories group are {}",
-        total_largest_three
-    );
+    let total_points: i32 = input.lines().map(|x| {
+        let round: String = x.split_whitespace().collect();
+        let shape_score = match round.chars().nth(1) {
+            Some('X') => 1,
+            Some('Y') => 2,
+            Some('Z') => 3,
+            None => 0,
+            _ => 0, 
+        };
+        let score = match game_scores.get(round.as_str()) {
+            Some(x) => x.clone() + shape_score,
+            None => 0,
+        };
+        
+        score
+    }).sum();
+    println!("total points {:?}", total_points);
 }
