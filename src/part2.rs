@@ -1,50 +1,24 @@
-use std::collections::HashMap;
-
-// AX -> rock-rock -> draw
-// AY -> rock-paper -> win
-// AZ -> rock-scissors -> loss
-// BX -> paper-rock -> loss
-// BY -> paper-paper -> draw
-// BZ -> paper-scissors -> win
-// CX -> scissors-rock -> win
-// CY -> scissors-paper -> loss
-// CZ -> scissors-scissors -> draw
-
 pub fn get_part2_answer(input: String) -> i32 {
-    let game_scores = HashMap::from([
-        ("AX", 'C'),
-        ("AY", 'A'),
-        ("AZ", 'B'),
-        ("BX", 'A'),
-        ("BY", 'B'),
-        ("BZ", 'C'),
-        ("CX", 'B'),
-        ("CY", 'C'),
-        ("CZ", 'A'),
-    ]);
-
-    let total_points: i32 = input
-        .lines()
-        .map(|x| {
-            let round: String = x.split_whitespace().collect();
-            let shape_score = match round.chars().nth(1) {
-                Some('X') => 0,
-                Some('Y') => 3,
-                Some('Z') => 6,
-                None => 0,
-                _ => 0,
+    let mut sum_of_priorities = 0;
+    let rucksacks = input.lines().collect::<Vec<&str>>();
+    for (i, rucksack) in rucksacks.iter().enumerate() {
+        if i % 3 == 0 {
+            let r1 = rucksack;
+            let r2 = rucksacks[i + 1];
+            let r3 = rucksacks[i + 2];
+            let common_badget = r1
+                .chars()
+                .filter(|c| r2.contains(*c) && r3.contains(*c))
+                .collect::<Vec<char>>();
+            // println!("common_badget: {:?}", common_badget[0]);
+            let offset = if common_badget[0].is_ascii_uppercase() {
+                64 - 26 // 64 is the ascii code for A, and we want to start at 27
+            } else {
+                96
             };
-            let round_score = match game_scores.get(round.as_str()) {
-                Some('A') => 1,
-                Some('B') => 2,
-                Some('C') => 3,
-                None => 0,
-                _ => 0,
-            };
-
-            round_score + shape_score
-        })
-        .sum();
-    println!("total points part2: {:?}", total_points);
-    return total_points;
+            sum_of_priorities += common_badget[0].clone() as u32 - offset;
+        }
+    }
+    println!("sum_of_priorities: {}", sum_of_priorities);
+    sum_of_priorities as i32
 }
