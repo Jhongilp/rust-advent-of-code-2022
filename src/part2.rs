@@ -1,24 +1,30 @@
 pub fn get_part2_answer(input: String) -> i32 {
-    let mut sum_of_priorities = 0;
-    let rucksacks = input.lines().collect::<Vec<&str>>();
-    for (i, rucksack) in rucksacks.iter().enumerate() {
-        if i % 3 == 0 {
-            let r1 = rucksack;
-            let r2 = rucksacks[i + 1];
-            let r3 = rucksacks[i + 2];
-            let common_badget = r1
-                .chars()
-                .filter(|c| r2.contains(*c) && r3.contains(*c))
-                .collect::<Vec<char>>();
-            // println!("common_badget: {:?}", common_badget[0]);
-            let offset = if common_badget[0].is_ascii_uppercase() {
-                64 - 26 // 64 is the ascii code for A, and we want to start at 27
-            } else {
-                96
-            };
-            sum_of_priorities += common_badget[0].clone() as u32 - offset;
+    let mut result = 0;
+    input.lines().for_each(|pairs| {
+        let pairs_arr: Vec<&str> = pairs.split(",").collect();
+        let first_pair_start = pairs_arr[0].split("-").collect::<Vec<&str>>()[0]
+            .parse::<u32>()
+            .unwrap();
+        let first_pair_end = pairs_arr[0].split("-").collect::<Vec<&str>>()[1]
+            .parse::<u32>()
+            .unwrap();
+        let second_pair_start = pairs_arr[1].split("-").collect::<Vec<&str>>()[0]
+            .parse::<u32>()
+            .unwrap();
+        let second_pair_end = pairs_arr[1].split("-").collect::<Vec<&str>>()[1]
+            .parse::<u32>()
+            .unwrap();
+
+        let range_overlap = if first_pair_start <= second_pair_start {
+            first_pair_end >= second_pair_start
+        } else {
+            second_pair_end >= first_pair_start
+        };
+
+        if range_overlap {
+            result += 1;
         }
-    }
-    println!("sum_of_priorities: {}", sum_of_priorities);
-    sum_of_priorities as i32
+    });
+    println!("result: {}", result);
+    result
 }
